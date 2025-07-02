@@ -1,69 +1,87 @@
-
 import streamlit as st
 import pandas as pd
 import os
 
-st.set_page_config(layout="wide")
-st.title("📊 ビンゴ大会リアルタイム表示")
-
-# 入力状態保持
-if "called" not in st.session_state:
+# 初期化
+if 'called' not in st.session_state:
     st.session_state.called = set()
 
-# 入力欄
-with st.form("number_form"):
-    num = st.text_input("数字を入力（1つずつ）", "")
-    submitted = st.form_submit_button("追加 / 取消")
+# 数字入力欄
+st.title("🎯 ビンゴ番号入力")
+number = st.text_input("番号を入力（Enterで追加・削除）", key="number_input")
 
-if submitted and num.isdigit():
-    if num in st.session_state.called:
-        st.session_state.called.remove(num)
-    else:
-        st.session_state.called.add(num)
-
-# ビンゴ判定ロジック
-def check_status(df, called):
-    def line_status(cells):
-        marked = [(c in called or c == "FREE") for c in cells]
-        if sum(marked) == 5:
-            return "BINGO"
-        elif sum(marked) == 4:
-            return "REACH"
+if number:
+    try:
+        n = int(number)
+        if n in st.session_state.called:
+            st.session_state.called.remove(n)
         else:
-            return None
+            st.session_state.called.add(n)
+        # 入力欄を空にする
+        st.session_state.number_input = ""
+    except ValueError:
+        st.warning("数字を入力してください")
 
-    states = []
+# 現在の入力番号一覧
+if st.session_state.called:
+    st.markdown("### 📋 現在の数字")
+    st.write(sorted(st.session_state.called))
 
+# カードの読み込み
+folder = "./csv"
+cards = {}
+for file in sorted(os.listdir(folder)):
+    if file.endswith(".csv"):
+        card_id = int(file.replace(".csv", ""))
+        cards[card_id] = pd.read_csv(os.path.join(folder, file), header=None)
+
+# 判定関数
+def is_bingo(card, called):
     for i in range(5):
-        row = df.iloc[i, :]
-        col = df.iloc[:, i]
-        for line in [row, col]:
-            s = line_status(line)
-            if s: states.append(s)
+        if all(card.iloc[i, j] in called or card.iloc[i, j] == "FREE" for j in range(5)):
+            return True
+        if all(card.iloc[j, i] in called or card.iloc[j, i] == "FREE" for j in range(5)):
+            return True
+    if all(card.iloc[i, i] in called or card.iloc[i, i] == "FREE" for i in range(5)):
+        return True
+    if all(card.iloc[i, 4-i] in called or card.iloc[i, 4-i] == "FREE" for i in range(5)):
+        return True
+    return False
 
-    # 斜め
-    diag1 = [df.iloc[i, i] for i in range(5)]
-    diag2 = [df.iloc[i, 4-i] for i in range(5)]
-    for d in [diag1, diag2]:
-        s = line_status(d)
-        if s: states.append(s)
+def is_reach(card, called):
+    def count_hits(line):
+        return sum(1 for v in line if v in called or v == "FREE")
+    for i in range(5):
+        if count_hits(card.iloc[i, :]) == 4:
+            return True
+        if count_hits(card.iloc[:, i]) == 4:
+            return True
+    if count_hits([card.iloc[i, i] for i in range(5)]) == 4:
+        return True
+    if count_hits([card.iloc[i, 4-i] for i in range(5)]) == 4:
+        return True
+    return False
 
-    return "BINGO!" if "BINGO" in states else ("REACH!" if "REACH" in states else None)
+# カード表示
+st.markdown("---")
+st.header("🃏 ビンゴカードの状態")
+for i in sorted(cards):
+    card = cards[i].copy()
+    for r in range(5):
+        for c in range(5):
+            val = card.iat[r, c]
+            if val != "FREE":
+                try:
+                    card.iat[r, c] = int(val)
+                except:
+                    pass
 
-# 表示
-st.write("### 現在の数字:", ", ".join(sorted(st.session_state.called)))
+    bingo = is_bingo(card, st.session_state.called)
+    reach = is_reach(card, st.session_state.called)
 
-cols = st.columns(4)
-for idx in range(1, 21):
-    path = f"./csv/{idx}.csv"
-    if os.path.exists(path):
-        df = pd.read_csv(path, header=None).fillna("FREE").astype(str)
-        status = check_status(df, st.session_state.called)
-        title = f"Card {idx:02}"
-        if status == "BINGO!":
-            title += " 🎉 BINGO!"
-        elif status == "REACH!":
-            title += " ⚠️ REACH!"
-        with cols[(idx - 1) % 4]:
-            st.markdown(f"#### {title}")
-            st.dataframe(df.style.applymap(lambda v: 'background-color: yellow' if v in st.session_state.called else None))
+    if bingo:
+        st.subheader(f"🎉 Card {i:02}: BINGO!")
+    elif reach:
+        st.markdown(f"🔔 Card {i:02}: リーチ！")
+
+    st.dataframe(card.style.applymap(lambda v: 'background-color: yellow' if v in st.session_state.called else None))
