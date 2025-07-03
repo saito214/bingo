@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 import glob
+import shutil
 
 st.set_page_config(layout="wide")
 st.title("📊 ビンゴ大会リアルタイム表示")
@@ -24,6 +25,20 @@ if username == "alluser":
         st.write(", ".join(sorted(user_dirs)))
     else:
         st.write("（ユーザーはまだ登録されていません）")
+    st.stop()
+# 削除モード
+if username.strip().lower() == "del":
+    st.markdown("### ⚠️ ユーザー削除モード")
+    user_to_delete = st.text_input("🗑 削除したいユーザー名を入力してください", "")
+    if user_to_delete:
+        user_folder = os.path.join(user_to_delete)
+        if os.path.exists(user_folder):
+            st.warning(f"ユーザー「{user_to_delete}」のフォルダを削除してもよいですか？この操作は元に戻せません。")
+            if st.button("🚨 本当に削除する"):
+                shutil.rmtree(user_folder)
+                st.success(f"✅ ユーザー「{user_to_delete}」のデータを削除しました。")
+        else:
+            st.error(f"ユーザー「{user_to_delete}」のフォルダが見つかりません。")
     st.stop()
 else :
     user_dir = f"./{username}"
