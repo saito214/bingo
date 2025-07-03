@@ -325,4 +325,3 @@ else :
                 st.dataframe(df.style.applymap(
                     lambda v: 'background-color: yellow' if v in st.session_state.called else None
                 ))
-
