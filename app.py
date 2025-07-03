@@ -8,17 +8,50 @@ st.title("📊 ビンゴ大会リアルタイム表示")
 
 # ユーザー名の入力
 username = st.text_input("🧑 あなたのユーザー名を入力してください", "")
+
 if not username:
     st.warning("ユーザー名を入力してください")
     st.stop()
+
 
 else :
 
 
     user_dir = f"./{username}"
-    if not os.path.isdir(user_dir):
-        st.error(f"ユーザー「{username}」のカードフォルダが存在しません。")
-        st.stop()
+    # if not os.path.isdir(user_dir):
+    #     st.error(f"ユーザー「{username}」のカードフォルダが存在しません。")
+    #     st.stop()
+
+    if not os.path.exists(user_dir):
+        st.warning("このユーザー名のビンゴカードが存在しません。新規作成してください。")
+
+        # 新規作成モード
+        st.markdown("### 🆕 ビンゴカードを手入力で追加")
+
+        if "new_cards" not in st.session_state:
+            st.session_state.new_cards = []
+
+        cols = st.columns(5)
+        new_card = [[cols[j].number_input(f"R{i+1}C{j+1}", min_value=1, max_value=99, key=f"cell_{i}_{j}") for j in range(5)] for i in range(5)]
+
+        if st.button("➕ カードを追加"):
+            st.session_state.new_cards.append(new_card)
+            st.success(f"{len(st.session_state.new_cards)}枚目のカードを追加しました")
+
+        if st.session_state.new_cards:
+            st.markdown("#### 現在追加されたカード一覧")
+            for idx, card in enumerate(st.session_state.new_cards, start=1):
+                st.write(f"🃏 Card {idx}")
+                st.table(card)
+
+            if st.button("💾 全て保存して次へ"):
+                os.makedirs(user_dir, exist_ok=True)
+                for idx, card in enumerate(st.session_state.new_cards, start=1):
+                    df = pd.DataFrame(card)
+                    df.iloc[2, 2] = "FREE"  # 中央をFREEに
+                    df.to_csv(f"{user_dir}/{idx}.csv", index=False, header=False)
+                st.success("✅ 全カードを保存しました。ページを再読み込みしてください。")
+                st.stop()
 
     # セッション初期化
     if "called" not in st.session_state:
