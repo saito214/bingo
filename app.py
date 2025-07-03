@@ -12,6 +12,18 @@ username = st.text_input("🧑 あなたのユーザー名を入力してくだ�
 if not username:
     st.warning("ユーザー名を入力してください")
     st.stop()
+# 🗂 alluser と入力されたらユーザーフォルダ一覧を表示
+if username == "alluser":
+    user_dirs = [
+        name for name in os.listdir(".")
+        if os.path.isdir(name) and not name.startswith(".") and name not in ["__pycache__", "csv", "gore", ".git"]
+    ]
+    st.markdown("### 👥 登録済みユーザー一覧")
+    if user_dirs:
+        st.write(", ".join(sorted(user_dirs)))
+    else:
+        st.write("（ユーザーはまだ登録されていません）")
+    st.stop()
 else :
     user_dir = f"./{username}"
     # if not os.path.isdir(user_dir):
