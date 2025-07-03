@@ -7,6 +7,7 @@ import shutil
 st.set_page_config(layout="wide")
 st.title("📊 ビンゴ大会リアルタイム表示")
 
+
 # ユーザー名の入力
 username = st.text_input("🧑 あなたのユーザー名を入力してください", "")
 
