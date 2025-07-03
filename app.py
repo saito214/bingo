@@ -30,7 +30,20 @@ else :
             st.session_state.new_cards = []
 
         cols = st.columns(5)
-        new_card = [[cols[j].number_input(f"R{i+1}C{j+1}", min_value=1, max_value=99, key=f"cell_{i}_{j}") for j in range(5)] for i in range(5)]
+        # new_card = [[cols[j].number_input(f"列{i+1}行{j+1}", min_value=1, max_value=99, key=f"cell_{i}_{j}") for j in range(5)] for i in range(5)]
+        new_card = []
+        for i in range(5):
+            row = []
+            for j in range(5):
+                if i == 2 and j == 2:
+                    cols[j].markdown("#### FREE")
+                    row.append("FREE")
+                else:
+                    val = cols[j].number_input(
+                        f"列{i+1}行{j+1}", min_value=1, max_value=99, key=f"cell_{i}_{j}"
+                    )
+                    row.append(val)
+            new_card.append(row)
 
         if st.button("➕ カードを追加"):
             st.session_state.new_cards.append(new_card)
