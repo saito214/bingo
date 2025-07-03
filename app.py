@@ -251,9 +251,6 @@ else :
             st.session_state.input_key += 1
             st.rerun()  # 入力欄を即リセット（再実行）
 
-
-
-
         # ビンゴ/リーチ判定
         def check_status(df, called):
             def line_status(cells):
