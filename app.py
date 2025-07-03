@@ -15,8 +15,6 @@ if not username:
 
 
 else :
-
-
     user_dir = f"./{username}"
     # if not os.path.isdir(user_dir):
     #     st.error(f"ユーザー「{username}」のカードフォルダが存在しません。")
