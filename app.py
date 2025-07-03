@@ -12,8 +12,6 @@ username = st.text_input("🧑 あなたのユーザー名を入力してくだ�
 if not username:
     st.warning("ユーザー名を入力してください")
     st.stop()
-
-
 else :
     user_dir = f"./{username}"
     # if not os.path.isdir(user_dir):
