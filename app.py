@@ -13,6 +13,7 @@ if not username:
     st.warning("ユーザー名を入力してください")
     st.stop()
 # 🗂 alluser と入力されたらユーザーフォルダ一覧を表示
+
 if username == "alluser":
     user_dirs = [
         name for name in os.listdir(".")
