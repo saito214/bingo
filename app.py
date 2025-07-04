@@ -57,6 +57,11 @@ else :
             st.session_state.clear_rows = False
         if "new_cards" not in st.session_state:
             st.session_state.new_cards = []
+
+        if st.session_state.clear_rows:
+            for i in range(5):
+                st.session_state[f"row_{i}"] = ""
+
         new_card = []
 
         for i in range(5):
@@ -135,7 +140,7 @@ else :
     #既存ユーザーも追加できるように
     else:
         st.success(f"✅ ユーザー「{username}」が見つかりました。")
-        choice = st.radio("次の操作を選んでください", ["🎴 ビンゴカードを追加", "🎯 ビンゴ判定に進む"], index=1)
+        choice = st.radio("次の操作を選んでください", ["🎴 ビンゴカードを追加", "🎯 ビンゴ判定に進む", "✏️ ビンゴカードを修正"], index=1)
 
         # ========================
         # 🎴 ビンゴカードを追加
@@ -331,3 +336,24 @@ else :
                     st.dataframe(df.style.applymap(
                         lambda v: 'background-color: yellow' if v in st.session_state.called else None
                     ))
+        elif choice == "✏️ ビンゴカードを修正":
+            st.markdown("### ✏️ 既存のビンゴカードを修正")
+            csv_files = sorted(glob.glob(os.path.join(user_dir, "*.csv")))
+
+            if not csv_files:
+                st.warning("修正できるカードが存在しません")
+            else:
+                selected_file = st.selectbox("修正するカードを選んでください", csv_files, format_func=lambda x: os.path.basename(x))
+                df = pd.read_csv(selected_file, header=None).fillna("").astype(str)
+
+                edited = []
+                for i in range(5):
+                    row_input = st.text_input(f"{i+1}行目（カンマ区切り）", value=",".join(df.iloc[i]), key=f"edit_row_{i}")
+                    parts = [p.strip() for p in row_input.split(",")]
+                    edited.append(parts[:5] + [""] * (5 - len(parts)))
+
+                if st.button("💾 このカードを保存"):
+                    df_new = pd.DataFrame(edited)
+                    df_new.iloc[2, 2] = "FREE"  # FREE セル補完
+                    df_new.to_csv(selected_file, index=False, header=False)
+                    st.success("✅ 修正を保存しました！")
