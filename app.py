@@ -11,7 +11,7 @@ st.title("📊 ビンゴ大会リアルタイム表示")
 CORRECT_PASSWORD = "Sirouta0615"
 
 # 管理者操作が必要なユーザー名
-admin_keywords = ["alluser", "del"]
+admin_keywords = ["alluser", "del","gore"]
 
 username = st.text_input("ユーザー名を入力してください")
 
