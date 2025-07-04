@@ -3,13 +3,12 @@ import pandas as pd
 import os
 import glob
 import shutil
-
-
 st.set_page_config(layout="wide")
 st.title("📊 ビンゴ大会リアルタイム表示")
 
 # パスワードの設定（ハードコーディング）
 CORRECT_PASSWORD = "Sirouta0615"
+
 
 # 管理者操作が必要なユーザー名
 admin_keywords = ["alluser", "del","gore"]
