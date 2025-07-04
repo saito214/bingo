@@ -9,17 +9,26 @@ import shutil
 st.set_page_config(layout="wide")
 st.title("📊 ビンゴ大会リアルタイム表示")
 
-# ユーザー名の入力
-username = st.text_input("🧑 あなたのユーザー名を入力してください", "")
+# パスワードの設定（ハードコーディング）
+CORRECT_PASSWORD = "Sirouta0615"
 
-if not username:
-    st.warning("ユーザー名を入力してください")
-    st.stop()
-# 🗂 alluser と入力されたらユーザーフォルダ一覧を表示
-if username == "alluser":
+# 管理者操作が必要なユーザー名
+admin_keywords = ["alluser", "del"]
+
+username = st.text_input("ユーザー名を入力してください")
+
+# 管理者モードに入る場合はパスワードを要求
+if username.strip().lower() in admin_keywords:
+    password = st.text_input("🔑 管理者パスワードを入力してください", type="password")
+    if password != CORRECT_PASSWORD:
+        st.error("パスワードが間違っています。")
+        st.stop()
+
+# alluser モード
+if username.strip().lower() == "alluser":
     user_dirs = [
         name for name in os.listdir(".")
-        if os.path.isdir(name) and not name.startswith(".") and name not in ["__pycache__", "csv", "gore", ".git"] #goreは表示しない
+        if os.path.isdir(name) and not name.startswith(".") and name not in ["__pycache__", "csv", "gore", ".git"]
     ]
     st.markdown("### 👥 登録済みユーザー一覧")
     if user_dirs:
@@ -27,7 +36,8 @@ if username == "alluser":
     else:
         st.write("（ユーザーはまだ登録されていません）")
     st.stop()
-# 削除モード
+
+# del モード
 if username.strip().lower() == "del":
     st.markdown("### ⚠️ ユーザー削除モード")
     user_to_delete = st.text_input("🗑 削除したいユーザー名を入力してください", "")
