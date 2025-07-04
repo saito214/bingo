@@ -4,6 +4,7 @@ import os
 import glob
 import shutil
 
+
 st.set_page_config(layout="wide")
 st.title("📊 ビンゴ大会リアルタイム表示")
 
