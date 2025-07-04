@@ -240,7 +240,6 @@ else :
                 "数字を入力（カンマ区切り・Enterで追加/取消）",
                 key=f"number_input_{st.session_state.input_key}"
             )
-
             # フォーム（送信ボタン用）
             with st.form("number_form"):
                 submitted = st.form_submit_button("送信")
