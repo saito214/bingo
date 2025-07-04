@@ -7,7 +7,6 @@ import shutil
 st.set_page_config(layout="wide")
 st.title("📊 ビンゴ大会リアルタイム表示")
 
-
 # ユーザー名の入力
 username = st.text_input("🧑 あなたのユーザー名を入力してください", "")
 
@@ -15,7 +14,6 @@ if not username:
     st.warning("ユーザー名を入力してください")
     st.stop()
 # 🗂 alluser と入力されたらユーザーフォルダ一覧を表示
-
 if username == "alluser":
     user_dirs = [
         name for name in os.listdir(".")
