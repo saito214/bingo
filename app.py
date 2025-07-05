@@ -154,8 +154,17 @@ else :
         # ========================
         # 🎴 ビンゴカードを追加
         # ========================
+        # カード追加モードに入ったときの初期化フラグ
+        if "card_add_initialized" not in st.session_state:
+            st.session_state.card_add_initialized = False
+
         if choice == "🎴 ビンゴカードを追加":
+            # 初回だけ new_cards を明示的に初期化
+            if not st.session_state.card_add_initialized:
+                st.session_state.new_cards = []
+                st.session_state.card_add_initialized = True
             st.markdown("### 🆕 ビンゴカードを手入力で追加")
+
 
             if "clear_rows" not in st.session_state:
                 st.session_state.clear_rows = False
@@ -225,14 +234,30 @@ else :
 
                 if st.button("💾 全て保存して次へ"):
                     os.makedirs(user_dir, exist_ok=True)
-                    existing_files = sorted([int(os.path.splitext(f)[0]) for f in os.listdir(user_dir) if f.endswith(".csv")])
-                    next_idx = max(existing_files) + 1 if existing_files else 1
+
+                    # 現在あるCSVファイルの最大番号を取得
+                    existing_files = [
+                        int(os.path.splitext(f)[0])
+                        for f in os.listdir(user_dir)
+                        if f.endswith(".csv") and os.path.splitext(f)[0].isdigit()
+                    ]
+                    base_idx = max(existing_files) if existing_files else 0
+
+                    # 追加されたカードだけ保存
                     for i, card in enumerate(st.session_state.new_cards):
                         df = pd.DataFrame(card)
                         df.iloc[2, 2] = "FREE"
-                        df.to_csv(f"{user_dir}/{next_idx + i}.csv", index=False, header=False)
+                        save_path = os.path.join(user_dir, f"{base_idx + i + 1}.csv")
+                        df.to_csv(save_path, index=False, header=False)
+
+                    # 保存後に new_cards をリセット
+                    st.session_state.new_cards = []
+                    st.session_state.card_add_initialized = False  # ←追加
+
                     st.success("✅ 全カードを保存しました。ページを再読み込みしてください。")
                     st.stop()
+
+
 
         # ========================
         # 🎯 ビンゴ判定に進む
