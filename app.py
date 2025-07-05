@@ -149,7 +149,7 @@ else :
     #既存ユーザーも追加できるように
     else:
         st.success(f"✅ ユーザー「{username}」が見つかりました。")
-        choice = st.radio("次の操作を選んでください", ["🎴 ビンゴカードを追加(必ずページを再読み込みしてください)", "🎯 ビンゴ判定に進む", "✏️ ビンゴカードを修正"], index=1)
+        choice = st.radio("次の操作を選んでください", ["🎴 ビンゴカードを追加(必ず再読み込みしてください)", "🎯 ビンゴ判定に進む", "✏️ ビンゴカードを修正"], index=1)
 
         # ========================
         # 🎴 ビンゴカードを追加
@@ -158,7 +158,7 @@ else :
         if "card_add_initialized" not in st.session_state:
             st.session_state.card_add_initialized = False
 
-        if choice == "🎴 ビンゴカードを追加":
+        if choice == "🎴 ビンゴカードを追加(必ず再読み込みしてください)":
             # 初回だけ new_cards を明示的に初期化
             if not st.session_state.card_add_initialized:
                 st.session_state.new_cards = []
